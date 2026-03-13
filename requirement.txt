@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+numpy
+pandas
+scikit-learn
+xgboost
+pydicom
+opencv-python
+matplotlib
+reportlab
+python-multipart
