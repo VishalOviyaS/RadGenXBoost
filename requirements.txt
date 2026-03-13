@@ -3,6 +3,7 @@ uvicorn
 numpy
 pandas
 scikit-learn
+scikit-image
 xgboost
 pydicom
 opencv-python
