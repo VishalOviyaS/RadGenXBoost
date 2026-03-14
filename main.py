@@ -30,12 +30,22 @@ ct_model = joblib.load(os.path.join(BASE_DIR, "models/ct_radiomics_model.pkl"))
 genomic_model = joblib.load(os.path.join(BASE_DIR, "models/genomic_xgboost_model.pkl"))
 fusion_model = joblib.load(os.path.join(BASE_DIR, "models/RadGenXGBoost_fusion_model.pkl"))
 
-
 # ---------------- HOME ROUTE ----------------
 @app.get("/")
 def home():
     return {"message": "RadGenXGBoost API is running"}
 
+# ---------------- DOWNLOAD ROUTE ----------------
+@app.get("/download/{file_name}")
+def download_report(file_name: str):
+
+    file_path = os.path.join(BASE_DIR, file_name)
+
+    return FileResponse(
+        file_path,
+        media_type="application/pdf",
+        filename="RadGenXGBoost_Report.pdf"
+    )
 
 # ---------------- PREDICTION ROUTE ----------------
 @app.post("/predict")
@@ -60,13 +70,9 @@ async def predict(ct_file: UploadFile = File(...), genomic_file: UploadFile = Fi
         contents = await genomic_file.read()
         genomic_df = pd.read_csv(io.BytesIO(contents))
 
-        # Keep only numeric columns
         genomic_df = genomic_df.select_dtypes(include=[np.number])
-
-        # Limit to first 100 features
         genomic_df = genomic_df.iloc[:, :100]
 
-        # Ensure single row input
         genomic_data = genomic_df.iloc[0].values.reshape(1, -1)
 
         genomic_probs = genomic_model.predict_proba(genomic_data)
@@ -93,9 +99,12 @@ async def predict(ct_file: UploadFile = File(...), genomic_file: UploadFile = Fi
         # ================================
         report_path = generate_report(result, img)
 
+        # Extract only filename
+        file_name = os.path.basename(report_path)
+
         return {
             "message": "Prediction completed",
-            "download_url": f"https://radgenxboost.onrender.com/download/{report_path}"
+            "download_url": f"https://radgenxboost.onrender.com/download/{file_name}"
         }
 
     except Exception as e:
