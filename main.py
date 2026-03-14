@@ -93,11 +93,10 @@ async def predict(ct_file: UploadFile = File(...), genomic_file: UploadFile = Fi
         # ================================
         report_path = generate_report(result, img)
 
-        return FileResponse(
-            report_path,
-            media_type="application/pdf",
-            filename="RadGenXGBoost_Report.pdf"
-        )
+        return {
+            "message": "Prediction completed",
+            "download_url": f"https://radgenxboost.onrender.com/download/{report_path}"
+        }
 
     except Exception as e:
         return {"error": str(e)}
