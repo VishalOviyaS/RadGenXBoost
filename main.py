@@ -14,15 +14,14 @@ from utils.report_generator import generate_report
 
 app = FastAPI()
 
-# ---------------- CORS (for frontend connection) ----------------
+# ✅ ADD CORS IMMEDIATELY AFTER APP CREATION
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],   # allow all origins
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 # ---------------- MODEL PATHS ----------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
