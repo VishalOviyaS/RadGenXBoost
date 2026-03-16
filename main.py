@@ -17,7 +17,10 @@ app = FastAPI()
 # ✅ ADD CORS IMMEDIATELY AFTER APP CREATION
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # allow all origins
+    allow_origins=[
+        "http://localhost:3000",
+        "https://radgenxboost.onrender.com"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
