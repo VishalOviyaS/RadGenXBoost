@@ -1,18 +1,18 @@
 import React, { useState } from "react";
 
-function UploadForm() {
+function UploadForm({ onResult }) {
 
+  const [patientId, setPatientId] = useState("");
   const [ctFile, setCtFile] = useState(null);
   const [genomicFile, setGenomicFile] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [downloadLink, setDownloadLink] = useState("");
 
   const handleSubmit = async (e) => {
 
     e.preventDefault();
 
-    if (!ctFile || !genomicFile) {
-      alert("Upload both CT and Genomic files");
+    if (!patientId || !ctFile || !genomicFile) {
+      alert("Fill all fields");
       return;
     }
 
@@ -25,20 +25,17 @@ function UploadForm() {
 
     try {
 
-      const response = await fetch(
-        "https://radgenxboost.onrender.com/predict",
-        {
-          method: "POST",
-          body: formData
-        }
-      );
+      const res = await fetch("http://127.0.0.1:8000/predict", {
+        method: "POST",
+        body: formData
+      });
 
-      const data = await response.json();
+      const data = await res.json();
 
-      setDownloadLink(data.download_url);
+      onResult(data.result, data.download_url);
 
-    } catch (error) {
-      alert("Prediction failed");
+    } catch (err) {
+      alert("Error");
     }
 
     setLoading(false);
@@ -47,37 +44,31 @@ function UploadForm() {
   return (
     <div className="card">
 
+      <h2>Patient Analysis</h2>
+
       <form onSubmit={handleSubmit}>
 
-        <label>Upload CT Scan (.dcm)</label>
-
+        <label>Patient ID</label>
         <input
-          type="file"
-          accept=".dcm"
+          value={patientId}
+          onChange={(e) => setPatientId(e.target.value)}
+        />
+
+        <label>Upload CT (.dcm)</label>
+        <input type="file" accept=".dcm"
           onChange={(e) => setCtFile(e.target.files[0])}
         />
 
-        <label>Upload Genomic CSV</label>
-
-        <input
-          type="file"
-          accept=".csv"
+        <label>Upload Genomic (.csv)</label>
+        <input type="file" accept=".csv"
           onChange={(e) => setGenomicFile(e.target.files[0])}
         />
 
-        <button type="submit">
-
-          {loading ? "Processing..." : "Predict"}
-
+        <button>
+          {loading ? "Analyzing..." : "Predict Analysis"}
         </button>
 
       </form>
-
-      {downloadLink && (
-        <a href={downloadLink} target="_blank" rel="noreferrer">
-          Download AI Report
-        </a>
-      )}
 
     </div>
   );
